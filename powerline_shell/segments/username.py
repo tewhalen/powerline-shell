@@ -15,6 +15,9 @@ class Segment(BasicSegment):
 
         if pwd.getpwuid(os.getuid())[0] == "root":
             bgcolor = powerline.theme.USERNAME_ROOT_BG
+        elif powerline.segment_conf("username", "mode") == "network_only" and not os.getenv('SSH_CLIENT'):
+            # abort if not network
+            return
         else:
             bgcolor = powerline.theme.USERNAME_BG
 
