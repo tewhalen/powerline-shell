@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 from ..utils import warn, py3, BasicSegment
 
 ELLIPSIS = u'\u2026'
@@ -34,6 +35,10 @@ def maybe_shorten_name(powerline, name):
     """If the user has asked for each directory name to be shortened, will
     return the name up to their specified length. Otherwise returns the full
     name."""
+    replacements = powerline.segment_conf("cwd","subst")
+    if replacements:
+        for pattern, repl in replacements:
+            name = re.sub(pattern, repl, name)
     max_size = powerline.segment_conf("cwd", "max_dir_size")
     if max_size:
         return name[:max_size]
@@ -93,8 +98,14 @@ def add_cwd_segment(powerline):
             separator = None
             separator_fg = None
 
-        powerline.append(' %s ' % maybe_shorten_name(powerline, name), fg, bg,
-                         separator, separator_fg)
+        if powerline.segment_conf("cwd","spacing") == "narrow":
+            spacer = ''
+        else:
+            spacer = ' '
+
+        powerline.append('%s%s%s' % (spacer, maybe_shorten_name(powerline, name),
+                                      spacer),
+                         fg, bg, separator, separator_fg)
 
 
 class Segment(BasicSegment):
